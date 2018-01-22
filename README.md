@@ -9,7 +9,7 @@ An ArcGIS toolbox to convert RGB values to their corresponding z-values as denot
 ![Z IMAGE](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/Z-image.png?raw=true9)
 *Z-Value raster derived from composite RGB image*
 
-1. ## [Background]()
+1. [Background](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#background-1)
 2. Methodology
 3. Linear or Histogram Equalise
 4. How to Use
