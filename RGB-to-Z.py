@@ -21,6 +21,11 @@ class CompositeImage(Exception):
     pass
 
 
+# Custom exception raster georectified
+class GeorectifiedImage(Exception):
+    pass
+
+
 # Custom exception RGB file format
 class FileFormat(Exception):
     pass
@@ -93,6 +98,7 @@ def create_rgb_range(text_file):
     with open(text_file) as f:
         content = f.readlines()
         content = [x.strip().split() for x in content]
+        content = filter(None, content)  # Remove empty elements i.e. empty lines
         content = [[int(n) for n in sub] for sub in content]
         for i, item in enumerate(content[:-1]):
             rgb_min = tuple(content[i][:3])
@@ -165,15 +171,21 @@ try:
     if in_raster.bandCount < 3:
         raise CompositeImage
 
+    # Check if raster is georectified
+    if in_raster.spatialReference.type == 'Unknown':
+        raise GeorectifiedImage
+
     lower_left = arcpy.Point(in_raster.extent.XMin, in_raster.extent.YMin)
-    cell_size = in_raster.meanCellWidth
+    cell_width = in_raster.meanCellWidth
+    cell_height = in_raster.meanCellHeight
     sr = in_raster.spatialReference
     raster_width = in_raster.width
     raster_height = in_raster.height
 
-    # Create list of RgbRange objects from text file
+    # Create list of RgbRange objects from text file. Raise error if not correctly formatted
     try:
         ranges = create_rgb_range(rgb_text_file)
+        arcpy.AddMessage("RGB Range objects created from text file")
     except FileFormat:
         error = "Text File is not formatted correctly."
         arcpy.AddError(error)
@@ -181,6 +193,7 @@ try:
 
     # Create rgb raster numPy array
     rgb_raster_array = arcpy.RasterToNumPyArray(in_raster, nodata_to_value=no_data)
+    arcpy.AddMessage("NumPy Array created from raster")
 
     # ----------------------------------#
     # Histogram Equalise
@@ -189,6 +202,7 @@ try:
     if histogram_method == "Histogram Equalised":
         # Create bins for histogram
         bins = np.arange(0, 256)
+        arcpy.AddMessage("Histogram bins created")
 
         # Create histograms for 3 channels
         red_histogram = np.histogram(rgb_raster_array[0], bins)
@@ -199,11 +213,13 @@ try:
         red_cum_sum = np.cumsum(red_histogram[0])
         green_cum_sum = np.cumsum(red_histogram[1])
         blue_cum_sum = np.cumsum(red_histogram[2])
+        arcpy.AddMessage("Cumulative sums calculated")
 
         # CDF minimums
         red_cdf_min = np.min(red_cum_sum[np.nonzero(red_cum_sum)])
         green_cdf_min = np.min(green_cum_sum[np.nonzero(green_cum_sum)])
         blue_cdf_min = np.min(blue_cum_sum[np.nonzero(blue_cum_sum)])
+        arcpy.AddMessage("Cumulative distribution function (CDF) minimums calculated")
 
         # Calculate CDF for each cell in the 3 channels
         # Red
@@ -215,6 +231,7 @@ try:
         # Blue
         for x in np.nditer(rgb_raster_array[2], op_flags=["readwrite"]):
             x[...] = calculate_cdf(x, blue_cum_sum, blue_cdf_min, raster_width, raster_height, 256)
+        arcpy.AddMessage("CDFs for each pixel calculated")
 
     # ----------------------------------#
     # end of histogram equalise
@@ -224,19 +241,30 @@ try:
     rgb_raster_array = np.dstack((rgb_raster_array[0], rgb_raster_array[1], rgb_raster_array[2]))
     # Run z-value function along channel axis
     z_raster_array = np.apply_along_axis(return_z_value, 2, rgb_raster_array, ranges, no_data)
-    z_raster = arcpy.NumPyArrayToRaster(z_raster_array, lower_left, cell_size, cell_size, no_data)
+    z_raster = arcpy.NumPyArrayToRaster(z_raster_array, lower_left, cell_width, cell_height, no_data)
+    arcpy.AddMessage("NumPy array re-stacked and z-value function ran across channel axis")
 
     # Create paths
     out_raster = os.path.join(workspace, "RGBtoZ_Ras")
     out_points = os.path.join(workspace, "RGBtoZ_Pnt")
 
-    # Project raster, convert to points and save both outputs
-    # arcpy.DefineProjection_management(out_raster, sr)
+    # Define raster, convert to points and save both outputs
     arcpy.CopyRaster_management(z_raster, out_raster)
-    arcpy.RasterToPoint_conversion(z_raster, out_points)
+    arcpy.DefineProjection_management(out_raster, sr)
+    arcpy.RasterToPoint_conversion(out_raster, out_points)
 
 except CompositeImage:
     error = "A RGB (3-band) composite image must be used."
+    arcpy.AddError(error)
+    print error
+
+except GeorectifiedImage:
+    error = "Raster must be projected"
+    arcpy.AddError(error)
+    print error
+
+except FileFormat:
+    error = "Incorrect text file format. See instructions"
     arcpy.AddError(error)
     print error
 
