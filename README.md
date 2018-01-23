@@ -30,7 +30,21 @@ When the original map was created in GIS software however, the raster (the bathy
 * Using the spatial data (CRS, cell width, cell height, etc.) from the original raster the new Z value NumpPy is converted back to raster format (and additional Points dataset).
 
 ## Histogram Equalise
+Alternatively the *histogram equalise* stretch can be used opposed to *linear histogram* stretch.
 Histogram equalisation is a method in image processing of contrast adjustment using the image’s histogram. The benefit of using this method is it allows for areas of lower local contrast to gain a higher contrast. It accomplishes this by effectively spreading out the most frequent intensity values. [Here](https://en.wikipedia.org/wiki/Histogram_equalization#Examples) is an example on how Histogram Equalisation works from Wikipedia. 
+
+The general histogram equalization formula is:
+[Histogram Equalise Formula](https://wikimedia.org/api/rest_v1/media/math/render/svg/0f10456556a0d71ff63760a9f924e2f9a4a6e583)
+*Figure 3: General histogram equalise formula*
+
+By rearranging the formula in figure 3 the histogram equalise formula can be reverse engineered to find the original pixel value.
+IMAGE OF MATHS (NEED NEBO AND SURFACE BOOK TO FINISH) COMING SOON
+
+* Create bins for histogram and subsequently 3 histograms for the three channels (RGB).
+* Calculate the cumulative sums for each of the histograms
+* Calculate the CDF minimums
+* Using the rearranged formula from figure 3 calculate the CDF for each pixel.
+* Return the index of the histogram bin with the minimum difference between the CDF value and CDF sum. This bin is the original *pixel value*
 
 ## How to Use
 Text here
