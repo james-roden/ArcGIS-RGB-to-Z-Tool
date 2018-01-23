@@ -14,7 +14,7 @@ An ArcGIS toolbox to convert RGB values to their corresponding z-values as denot
 ## Index
 1. [Background](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#background-1)
 2. [Methodology](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#methodology)
-3. [Linear or Histogram Equalise](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#linear-or-histogram-equalise)
+3. [Linear or Histogram Equalise](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#histogram-equalise)
 4. [How to Use](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#how-to-use)
 
 ## Background
@@ -25,8 +25,8 @@ When the original map was created in GIS software however, the raster (the bathy
 ## Methodology
 Text here
 
-## Linear or Histogram Equalise
-Text here.
+## Histogram Equalise
+Histogram equalisation is a method in image processing of contrast adjustment using the image’s histogram. The benefit of using this method is it allows for areas of lower local contrast to gain a higher contrast. It accomplishes this by effectively spreading out the most frequent intensity values. [Here](https://en.wikipedia.org/wiki/Histogram_equalization#Examples) is an example on how Histogram Equalisation works from Wikipedia. 
 
 ## How to Use
 Text here
