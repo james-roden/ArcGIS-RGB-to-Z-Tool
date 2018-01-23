@@ -34,7 +34,7 @@ Alternatively the *histogram equalise* stretch can be used opposed to *linear hi
 Histogram equalisation is a method in image processing of contrast adjustment using the image’s histogram. The benefit of using this method is it allows for areas of lower local contrast to gain a higher contrast. It accomplishes this by effectively spreading out the most frequent intensity values. [Here](https://en.wikipedia.org/wiki/Histogram_equalization#Examples) is an example on how Histogram Equalisation works from Wikipedia. 
 
 The general histogram equalization formula is:
-[Histogram Equalise Formula](https://wikimedia.org/api/rest_v1/media/math/render/svg/0f10456556a0d71ff63760a9f924e2f9a4a6e583)
+[Histogram Equalise Formula](https://raw.githubusercontent.com/GISJMR/ArcGIS-RGB-to-Z-Tool/master/histogram-equalise-equation.png)
 *Figure 3: General histogram equalise formula*
 
 By rearranging the formula in figure 3 the histogram equalise formula can be reverse engineered to find the original pixel value.
