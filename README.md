@@ -40,7 +40,10 @@ The general histogram equalization formula is:
 *Figure 3: General histogram equalise formula*
 
 By rearranging the formula in figure 3 the histogram equalise formula can be reverse engineered to find the original pixel value.
-IMAGE OF MATHS (NEED NEBO AND SURFACE BOOK TO FINISH) COMING SOON
+
+![Rearranged equation](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/histogram-equalise-rearranged.png?raw=true)
+
+*Figure 4: Rearranged histogram equalise formula*
 
 * Create bins for histogram and subsequently 3 histograms for the three channels (RGB).
 * Calculate the cumulative sums for each of the histograms
