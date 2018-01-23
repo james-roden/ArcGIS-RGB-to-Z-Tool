@@ -3,7 +3,7 @@
 
 An ArcGIS toolbox to convert RGB values to their corresponding z-values as denoted in the map’s legend.
 
-[DOWNLOAD](http://)
+[DOWNLOAD](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/raw/master/RGB-to-Z.zip)
 
 ![RGB IMAGE](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/RGB-image.png?raw=true)
 *Figure 1: Georectified composite RGB image*
