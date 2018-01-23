@@ -14,7 +14,7 @@ An ArcGIS toolbox to convert RGB values to their corresponding z-values as denot
 ## Index
 1. [Background](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#background-1)
 2. [Methodology](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#methodology)
-3. [Linear or Histogram Equalise](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#histogram-equalise)
+3. [Histogram Equalise](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#histogram-equalise)
 4. [How to Use](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#how-to-use)
 
 ## Background
