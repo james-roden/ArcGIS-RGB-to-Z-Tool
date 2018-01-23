@@ -30,7 +30,7 @@ When the original map was created in GIS software however, the raster (the bathy
 * Using the spatial data (CRS, cell width, cell height, etc.) from the original raster the new Z value NumpPy is converted back to raster format (and additional Points dataset).
 
 ## Histogram Equalise
-It's very difficult to tell what histogram stretch was used by the original map maker. The most common is a linear stretch but their are several alternatives (standard deviation, percent clip). This tool will *currently* convert Linear Stretch and Histogram Equalise Stretch.
+It's very difficult to tell what histogram stretch was used by the original map maker. The most common is a linear stretch but there are several alternatives (standard deviation, percent clip, etc.). This tool will *currently* convert Linear Stretch and Histogram Equalise Stretch.
 Histogram equalisation is a method in image processing of contrast adjustment using the image’s histogram. The benefit of using this method is it allows for areas of lower local contrast to gain a higher contrast. It accomplishes this by effectively spreading out the most frequent intensity values. [Here](https://en.wikipedia.org/wiki/Histogram_equalization#Examples) is an example on how Histogram Equalisation works from Wikipedia. 
 
 The general histogram equalization formula is:
