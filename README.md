@@ -1,5 +1,6 @@
 # ArcGIS-RGB-to-Z-Tool
-Version--ArcGIS 10.3
+Version==ArcGIS 10.3
+
 *Created by James M Roden*
 
 An ArcGIS toolbox to convert RGB values to their corresponding z-values as denoted in the map’s legend.
