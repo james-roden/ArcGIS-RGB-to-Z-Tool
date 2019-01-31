@@ -31,28 +31,6 @@ When the original map was created in GIS software however, the raster (the bathy
 * Loop over each pixel in the image and check if its RGB value falls within any of our previously made RGB range objects. If it does, call the RGB to Z method for that particular object. This method first calculates the *spectral position*, this is how far away from the RGB minimum the pixel's RGB channels sit. We take the largest range to allow more variance in the RGB to Z comparison. If using the *Linear Histogram* option the RGB and Z values are normalised and a Z value is returned in place of the 3 channels.
 * Using the spatial data (CRS, cell width, cell height, etc.) from the original raster the new Z value NumpPy is converted back to raster format (and additional Points dataset).
 
-## Histogram Equalise
-It's very difficult to tell what histogram stretch was used by the original map maker. The most common is a linear stretch but there are several alternatives (standard deviation, percent clip, etc.). This tool will *currently* convert Linear Stretch and Histogram Equalise Stretch.
-Histogram equalisation is a method in image processing of contrast adjustment using the image’s histogram. The benefit of using this method is it allows for areas of lower local contrast to gain a higher contrast. It accomplishes this by effectively spreading out the most frequent intensity values. [Here](https://en.wikipedia.org/wiki/Histogram_equalization#Examples) is an example on how Histogram Equalisation works from Wikipedia. 
-
-The general histogram equalization formula is:
-
-![Histogram Equalise Formula](https://raw.githubusercontent.com/GISJMR/ArcGIS-RGB-to-Z-Tool/master/histogram-equalise-equation.png)
-
-*Figure 3: General histogram equalise formula*
-
-By rearranging the formula in figure 3 the histogram equalise formula can be reverse engineered to find the original pixel value.
-
-![Rearranged equation](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/histogram-equalise-rearranged.png?raw=true)
-
-*Figure 4: Rearranged histogram equalise formula*
-
-* Create bins for histogram and subsequently 3 histograms for the three channels (RGB).
-* Calculate the cumulative sums for each of the histograms
-* Calculate the CDF minimums
-* Using the rearranged formula from figure 3 calculate the CDF for each pixel.
-* Return the index of the histogram bin with the minimum difference between the CDF value and CDF sum. This bin is the original *pixel value*
-
 ## How to Use
 1. Georectify the RGB composite image in ArcMap
 2. Using the eye-dropper tool carefully select RGB colours along the grids colour ramp in the legend. Copy and paste the RGB value into a new line in a blank text document followed by its corresponding Z value. Each new RGB-to-Z pairing needs to be on a new line as in figure 5 below. If you do not have the eye-dropper available in your toolbar already, please find instructions [here](http://www.esri.com/esri-news/arcwatch/1214/finding-colors-on-maps-is-easy-using-the-eye-dropper-tool)
