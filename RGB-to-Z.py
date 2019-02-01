@@ -1,9 +1,10 @@
 # -----------------------------------------------
 # Name: RGB to Z Raster Tool
+# Version: 0.2.0 // Jan 2019
 # Purpose: To convert RGB value to appropriate z value
 # Author: James M Roden
 # Created: Aug 2017
-# ArcGIS Version: 10.3
+# ArcGIS Version: 10.5
 # Dependencies: NumPy 1.7.1
 # Python Version 2.6
 # PEP8
@@ -31,67 +32,91 @@ class FileFormat(Exception):
     pass
 
 
-class RgbRange(object):
+class RangeError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class _Range(object):
+    """Object that contains the RGB & Z values for the base and top of the colour ramp. This is a private class that
+    is used within the Rgb2z class.
+    Attributes:
+        _rgb_base      : The RGB base value.
+        _rgb_top       : The RGB top value.
+        _z_base        : The z base value.
+        _z_top         : The z top value.
+        _z_range       : The range between the top & bottom of z
+        _rgb_ranges    : The range between the top & bottom of RGB
+        _<colour>_top  : The top value of <colour>
+        _<colour>_base : The base value of <colour>
     """
-    Class representing a RGB colour range with associated z values
 
-    rgb_min     -- tuple containing lowermost RGB value
-    rgb_max     -- tuple containing uppermost RGB value
-    z_min       -- int z value corresponding to rgb_min
-    z_max       -- int z value corresponding to rgb_max
-    """
+    def __init__(self, rgb_base, rgb_top, z_base, z_top):
+        """Creates instance of _Range object
+        Args:
+            rgb_base : The RGB base value
+            rgb_top  : The RGB top value
+            z_base   : The z base value
+            z_top    : The z top value
+        """
 
-    def __init__(self, rgb_min, rgb_max, z_min, z_max):
-        self.rgb_min = rgb_min
-        self.rgb_max = rgb_max
-        self.z_min = z_min
-        self.z_max = z_max
-        self._z_range = abs(z_max - z_min)
-        self.red, self.green, self.blue = [sorted(x) for x in zip(rgb_max, rgb_min)]
-        self.rgb_range = tuple(abs(x - y) for x, y in zip(rgb_max, rgb_min))
-
-        # Initialised in rgb_to_z
-        self._z_value = None
-        self._spectral_position = None
-        self._largest_range = None
-        self._band = None
+        # Check if all RGB values are within correct range
+        if not all(0 <= x <= 255 for x in [value for sublist in [rgb_base, rgb_top] for value in sublist]):
+            raise RangeError('RGB values must be from 0 to 255')
+        # Check if z_base is less than z_top
+        if z_base > z_top:
+            raise RangeError('The value of z_base must be less than z_top')
+        self._rgb_base = rgb_base
+        self._rgb_top = rgb_top
+        self._z_base = z_base
+        self._z_top = z_top
+        self._z_range = abs(z_top - z_base)
+        # Find top and base value for the three channels - used for in_range method
+        self._red_base, self._red_top, self._green_base, self._green_top, self._blue_base, self._blue_top = \
+            [value for sublist in [sorted(x) for x in zip(rgb_top, rgb_base)] for value in sublist]
+        self._rgb_ranges = [abs(x - y) for x, y in zip(self._rgb_top, self._rgb_base)]
+        self.mem_dict = {}
 
     def in_range(self, rgb):
+        """Checks whether a RGB value is within the instances RGB range.
+        Checks if red from rgb (input) is within the range of red_base and red_top of the instance. The same is done
+        for green and blue.
+        Args:
+            rgb (tuple): RGB value to be checked if it is in instances RGB range
+        Returns:
+            Boolean: True if all values are within their respective RGB range
         """
-        Checks whether rgb value is within range of rgb_min and rgb_max
-
-        rgb     -- tuple to check
-        """
-
-        return (self.red[0] <= rgb[0] <= self.red[1] and self.green[0] <= rgb[1] <= self.green[1] and
-                self.blue[0] <= rgb[2] <= self.blue[1])
+        return (self._red_base <= rgb[0] <= self._red_top and self._green_base <= rgb[1] <= self._green_top
+                and self._blue_base <= rgb[2] <= self._blue_top)
 
     def rgb_to_z(self, rgb):
+        """Converts a RGB value to its corresponding z value from the instances mappings object.
+        Maps the rgb value to the range and returns its corresponding z value.
+        Args:
+            rgb (tuple): RGB value to be converted to Z value
+        Returns:
+            Int: Corresponding Z value for RGB input
         """
-        Returns corresponding z-value for rgb value
 
-        rgb     -- rgb value for which a z-value will be returned
-        """
-
-        # Spectral position is how far away from the rgb_min the rgb channels sit
-        self._spectral_position = [abs(self.rgb_min[0] - rgb[0]), abs(self.rgb_min[1] - rgb[1]),
-                                   abs(self.rgb_min[2] - rgb[2])]
+        spectral_position = [abs(self._red_base - rgb[0]), abs(self._green_base - rgb[1]),
+                             abs(self._blue_base - rgb[2])]
         # The largest range is taken to allow more variance in the rgb-to-z comparison
-        self._largest_range = max(self._spectral_position)
-        self._band = self._spectral_position.index(self._largest_range)  # Band with largest range
-        if self._largest_range != 0:
-            self._z_value = self._largest_range * (float(self._z_range) / float(self.rgb_range[self._band])) \
-                            + self.z_min
-            return round(self._z_value)
+        max_range = max(spectral_position)
+        max_index = spectral_position.index(max_range)  # Band with largest range
+        if max_range != 0:
+            z_value = max_range * (float(self._z_range) / float(self._rgb_ranges[max_index])) + self._z_base
+            return round(z_value)
+        # rgb is the same as the range rgb base.
         else:
-            return self.z_min
+            return self._z_base
 
 
-def create_rgb_range(text_file):
-    """
-    Creates a list of RGB range objects from a correctly formatted text file
-
-    text_file   -- Text file containing RGB ranges
+def map_from_file(text_file):
+    """Creates mappings list from correctly formatted text document.
+    Updates the instances mapping attribute with a list of _Range objects from a correctly formatted text file.
+    The text file must follow the format 'r g b z\n'
+    Args:
+        text_file: text file with 'r g b z\n' format
     """
 
     rgb_ranges = []
@@ -101,55 +126,28 @@ def create_rgb_range(text_file):
         content = filter(None, content)  # Remove empty elements i.e. empty lines
         content = [[int(n) for n in sub] for sub in content]
         for i, item in enumerate(content[:-1]):
-            rgb_min = tuple(content[i][:3])
-            rgb_max = tuple(content[i + 1][:3])
-            z_min = item[3]
-            z_max = content[i + 1][3]
-            rgb_ranges.append(RgbRange(rgb_min, rgb_max, z_min, z_max))
+            rgb_base = tuple(content[i][:3])
+            rgb_top = tuple(content[i + 1][:3])
+            z_base = item[3]
+            z_top = content[i + 1][3]
+            rgb_ranges.append(_Range(rgb_base, rgb_top, z_base, z_top))
 
     return rgb_ranges
 
 
-def return_z_value(pixel, rgb_ranges, null_value):
-    """
-    Checks if the pixel is in any of the rgb ranges, if true it returns z, else returns NoData
-
-    pixel           -- Pixel rgb value to check
-    rgb_ranges      -- List of RgbRanges to check against
+def _return_z(pixel, mappings, null_value):
+    """Checks if a pixel is in a list of ranges, if yes, returns its corresponding z value
+    Returns:
+        int : z value
     """
 
     pixel = tuple(pixel)
-    for rgb_range in rgb_ranges:
-        if rgb_range.in_range(pixel):
-            return rgb_range.rgb_to_z(pixel)
+    for mapping in mappings:
+        if mapping.in_range(pixel):
+            return mapping.rgb_to_z(pixel)
 
-    # If not in any of the rgb_ranges return NoData number
+    # If not in any of the mappings, return null_value
     return null_value
-
-
-def calculate_cdf(histogram_value, cum_sum, cdf_min, width, height, levels):
-    """
-    Reverse engineers the histogram equalisation formula to find original pixel value
-
-    histogram_value -- Histogram equalised value
-    cum_sum         -- Cumulative sum histogram
-    cdf_min         -- CDF minimum
-    width           -- Image width
-    height          -- Image height
-    levels          -- Levels of band. E.g. Red = 256
-    """
-    # Reverse levels multiplication of histogram value * (L-2)
-    histogram_value = float(histogram_value) / (float(levels) - 2)
-    # Work out (M * N) -1, named pixels
-    pixels = (width * height) - 1
-    # Multiply pixels out of both sides
-    histogram_value *= pixels
-    # Finally rearrange histogram and pixels to return cdf(value)
-    cdf_value = histogram_value + cdf_min
-    # Returns the index (bin) with the minimum difference between our cdf_value and cum_sum array elements
-    # This bin is the 'pixel value' out of 256 bins we are after
-    original_value = np.abs(cum_sum - cdf_value).argmin()
-    return original_value
 
 try:
     # arcpy environment settings
@@ -183,64 +181,17 @@ try:
     raster_height = in_raster.height
 
     # Create list of RgbRange objects from text file. Raise error if not correctly formatted
-    try:
-        ranges = create_rgb_range(rgb_text_file)
-        arcpy.AddMessage("RGB Range objects created from text file")
-    except FileFormat:
-        error = "Text File is not formatted correctly."
-        arcpy.AddError(error)
-        print error
+    ranges = map_from_file(rgb_text_file)
+    arcpy.AddMessage("RGB Range objects created from text file")
 
     # Create rgb raster numPy array
     rgb_raster_array = arcpy.RasterToNumPyArray(in_raster, nodata_to_value=no_data)
     arcpy.AddMessage("NumPy Array created from raster")
 
-    # ----------------------------------#
-    # Histogram Equalise
-    # ----------------------------------#
-
-    if histogram_method == "Histogram Equalised":
-        # Create bins for histogram
-        bins = np.arange(0, 256)
-        arcpy.AddMessage("Histogram bins created")
-
-        # Create histograms for 3 channels
-        red_histogram = np.histogram(rgb_raster_array[0], bins)
-        green_histogram = np.histogram(rgb_raster_array[1], bins)
-        blue_histogram = np.histogram(rgb_raster_array[2], bins)
-
-        # Cumulative sums of histograms
-        red_cum_sum = np.cumsum(red_histogram[0])
-        green_cum_sum = np.cumsum(red_histogram[1])
-        blue_cum_sum = np.cumsum(red_histogram[2])
-        arcpy.AddMessage("Cumulative sums calculated")
-
-        # CDF minimums
-        red_cdf_min = np.min(red_cum_sum[np.nonzero(red_cum_sum)])
-        green_cdf_min = np.min(green_cum_sum[np.nonzero(green_cum_sum)])
-        blue_cdf_min = np.min(blue_cum_sum[np.nonzero(blue_cum_sum)])
-        arcpy.AddMessage("Cumulative distribution function (CDF) minimums calculated")
-
-        # Calculate CDF for each cell in the 3 channels
-        # Red
-        for x in np.nditer(rgb_raster_array[0], op_flags=["readwrite"]):
-            x[...] = calculate_cdf(x, red_cum_sum, red_cdf_min, raster_width, raster_height, 256)
-        # Green
-        for x in np.nditer(rgb_raster_array[1], op_flags=["readwrite"]):
-            x[...] = calculate_cdf(x, green_cum_sum, green_cdf_min, raster_width, raster_height, 256)
-        # Blue
-        for x in np.nditer(rgb_raster_array[2], op_flags=["readwrite"]):
-            x[...] = calculate_cdf(x, blue_cum_sum, blue_cdf_min, raster_width, raster_height, 256)
-        arcpy.AddMessage("CDFs for each pixel calculated")
-
-    # ----------------------------------#
-    # end of histogram equalise
-    # ----------------------------------#
-
     # Re-stack array into rows, columns, and channels
     rgb_raster_array = np.dstack((rgb_raster_array[0], rgb_raster_array[1], rgb_raster_array[2]))
     # Run z-value function along channel axis
-    z_raster_array = np.apply_along_axis(return_z_value, 2, rgb_raster_array, ranges, no_data)
+    z_raster_array = np.apply_along_axis(_return_z, 2, rgb_raster_array, ranges, no_data)
     z_raster = arcpy.NumPyArrayToRaster(z_raster_array, lower_left, cell_width, cell_height, no_data)
     arcpy.AddMessage("NumPy array re-stacked and z-value function ran across channel axis")
 
