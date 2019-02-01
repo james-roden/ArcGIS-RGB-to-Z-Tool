@@ -6,7 +6,7 @@ An ArcGIS toolbox to convert RGB values to their corresponding z-values as denot
 
 [DOWNLOAD](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/raw/master/RGB-to-Z.zip)
 
-![RGB IMAGE](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/RGB-image.png?raw=true)
+![RGB IMAGE](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/imgs/RGB-image.png?raw=true)
 *Figure 1: Georectified composite RGB image*
 
 ![Z IMAGE](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/Z-image.png?raw=true9)
