@@ -2,6 +2,8 @@
 
 *Created by James M Roden*
 
+*Version==0.2.0 // Jan 2019*
+
 An ArcGIS toolbox to convert RGB values to their corresponding z-values as denoted in the map’s legend.
 
 [DOWNLOAD](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/raw/master/RGB-to-Z.zip)
