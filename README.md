@@ -1,5 +1,4 @@
 # ArcGIS-RGB-to-Z-Tool
-Version==ArcGIS 10.3
 
 *Created by James M Roden*
 
