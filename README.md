@@ -4,7 +4,7 @@
 
 *Version==0.2.0 // Jan 2019*
 
-An ArcGIS toolbox to convert RGB values to their corresponding z-values as denoted in the map’s legend.
+An ArcGIS toolbox to convert RGB values to their corresponding z-values as denoted in the map’s legend. Input: georectified RGB image. Output: Z-value raster & point shapefile.
 
 [DOWNLOAD](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/raw/master/RGB-to-Z.zip)
 
@@ -28,6 +28,7 @@ When the original map was created in GIS software however, the raster (the bathy
 1. Georectify the RGB composite image in ArcMap
 2. Using the eye-dropper tool carefully select RGB colours along the grids colour ramp in the legend. Copy and paste the RGB value into a new line in a blank text document followed by its corresponding Z value. Each new RGB-to-Z pairing needs to be on a new line as in figure 3 below. If you do not have the eye-dropper available in your toolbar already, please find instructions [here](http://www.esri.com/esri-news/arcwatch/1214/finding-colors-on-maps-is-easy-using-the-eye-dropper-tool)
 3. Once all RGB to Z values are ready and your text file is saved, follow the instructions in the ArcGIS Toolbox.
+4. Output: A z-value raster & point dataset.
 
 ![Text File](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/imgs/textfileeg.png?raw=true)
 
