@@ -16,8 +16,7 @@ An ArcGIS toolbox to convert RGB values to their corresponding z-values as denot
 
 ## Index
 1. [Background](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#background-1)
-2. [Histogram Equalise](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#histogram-equalise)
-3. [How to Use](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#how-to-use)
+2. [How to Use](https://github.com/GISJMR/ArcGIS-RGB-to-Z-Tool/blob/master/README.md#how-to-use)
 
 ## Background
 Composite images, like that in figure 1, more often than not contain three channels: red, green, blue (RGB). In a 24-bit RGB image each channel has 8-bits – in other words the image is composed of three images (one for each channel). Each of these channels has varying intensities between 0 and 255. The combination of these 3 channels results in a possible 16,777,216 colours. 
