@@ -124,7 +124,7 @@ def map_from_file(text_file):
         content = f.readlines()
         content = [x.strip().split() for x in content]
         content = filter(None, content)  # Remove empty elements i.e. empty lines
-        content = [[int(n) for n in sub] for sub in content]
+        content = [[float(n) for n in sub] for sub in content]
         for i, item in enumerate(content[:-1]):
             rgb_base = tuple(content[i][:3])
             rgb_top = tuple(content[i + 1][:3])
@@ -160,7 +160,6 @@ try:
     rgb_text_file = arcpy.GetParameterAsText(1)
     no_data = int(arcpy.GetParameterAsText(2))
     workspace = arcpy.GetParameterAsText(3)
-    histogram_method = arcpy.GetParameterAsText(4)
 
     # Describe properties of raster
     in_raster = arcpy.Raster(in_raster)
